@@ -36,7 +36,7 @@
             return false;
         }
 
-        function emailExists(){
+        /*function emailExists(){
             $query = "SELECT id, firstname, lastname, password FROM " 
             . $this->table_name . 
             " WHERE email=:email LIMIT 0,1";
@@ -48,15 +48,45 @@
 
             $statement->execute();
 
-            $row = $statement->fetch(PDO::FETCH_ASSOC);
+            $num = $statement->rowCount();
+            if($num > 0){
+                $row = $statement->fetch(PDO::FETCH_ASSOC);
 
-            $this->email = $row['email'];
+                $this->email = $row['email']; //<-- invalid
 
-            if ($this->email != ""){
-                return true;
+                if ($this->email != ""){
+                    return true;
+                }
             }
 
             return false;
+        }*/
+        function emailExists(){ //maybe better version
+            $query = "SELECT id, firstname, lastname, password FROM " 
+            . $this->table_name . 
+            " WHERE email=? LIMIT 0,1";
+            $statement = $this->conn->prepare($query);
+
+            $this->email = htmlspecialchars(strip_tags($this->email));
+
+            $statement->bindParam(1, $this->email);
+
+            $statement->execute();
+
+            $num = $statement->rowCount();
+
+            if ($num > 0){
+                $row = $statement->fetch(PDO::FETCH_ASSOC);
+                $this->id = $row['id'];
+                $this->firstname = $row['firstname'];
+                $this->lastname = $row['lastname'];
+                $this->password = $row['password'];
+
+                return true;
+            }
+            
+            return false;
+            
         }
     }
 ?>
