@@ -9,10 +9,10 @@
      include_once 'objects/user.php';
      //JWT
      include_once 'config/core.php';
-     include_once 'libs/php-jwt-master/src/BeforeValidException.php';
-     include_once 'libs/php-jwt-master/src/ExpiredException.php';
-     include_once 'libs/php-jwt-master/src/SignatureInvalidException.php';
-     include_once 'libs/php-jwt-master/src/JWT.php';
+     include_once 'libs/php-jwt/src/BeforeValidException.php';
+     include_once 'libs/php-jwt/src/ExpiredException.php';
+     include_once 'libs/php-jwt/src/SignatureInvalidException.php';
+     include_once 'libs/php-jwt/src/JWT.php';
      use \Firebase\JWT\JWT;
  
      $database = new Database();
@@ -23,8 +23,10 @@
      $data = json_decode(file_get_contents("php://input"));
      $user->email = $data->email;
      $email_exists = $user->emailExists();
+     $hashed_password = password_hash($user->password, PASSWORD_DEFAULT);
+     $pass_verified = password_verify($data->password, $hashed_password);
 
-     if($email_exists && password_verify($data->password, $user->password)){
+     if($email_exists && $pass_verified){ 
          $token = array(
             "iat" => $issued_at,
             "exp" => $expiration_time,
