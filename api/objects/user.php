@@ -88,5 +88,37 @@
             return false;
             
         }
+
+        function update(){
+            $password_set = !empty($this->password) ? ", password=:password" : "";
+            
+            $query = "UPDATE " . $this->table_name . 
+            " SET firstname=:firstname, lastname=:lastname, email=:email {$password_set} WHERE id=:id";
+
+            $statement = $this->conn->prepare($query);
+
+            $this->firstname = htmlspecialchars(strip_tags($this->firstname));
+            $this->lastname = htmlspecialchars(strip_tags($this->lastname));
+            $this->email = htmlspecialchars(strip_tags($this->email));
+
+            $statement->bindParam(":firstname", $this->firstname);
+            $statement->bindParam(":lastname", $this->lastname);
+            $statement->bindParam(":email", $this->email);
+
+            //hashing password before saving to database
+            if(!empty($this->password)){
+                $this->password = htmlspecialchars(strip_tags($this->password));
+                $hashed_password = password_hash($this->password, PASSWORD_BCRYPT);
+                $statement->bindParam(":password", $hashed_password);
+            }
+
+            $statement->bindParam(":id", $this->id);
+
+            if ($statement -> execute()){
+                return true;
+            }
+
+            return false;
+        }
     }
 ?>
